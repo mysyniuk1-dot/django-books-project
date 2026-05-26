@@ -4,7 +4,7 @@
     <div style="display:flex; gap:40px; background:white; padding:30px; border-radius:8px; box-shadow:0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e5e7eb; margin-top:20px; flex-wrap:wrap;">
         <div style="flex:1; min-width:300px; max-width:400px;">
             {% if book.image %}
-                <img src="{{ book.image.url }}" style="width:100%; border-radius:8px; box-shadow:0 10px 15px -3px rgba(0,0,0,0.1);" alt="">
+                <img src="{{ book.image.url }}" style="width:100%; border-radius:8px;">
             {% else %}
                 <div style="width:100%; height:400px; background:#e5e7eb; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#9ca3af;">Обкладинка відсутня</div>
             {% endif %}
@@ -13,19 +13,65 @@
         <div style="flex:2; min-width:300px; display:flex; flex-direction:column; justify-content:space-between;">
             <div>
                 <h1 style="margin:0 0 10px 0; color:#111827;">{{ book.title }}</h1>
-                <h3 style="margin:0 0 20px 0; color:#4b5563; font-weight:normal;">Автор: <strong style="color:#111827;">{{ book.author }}</strong></h3>
-                <span style="background:#e0f2fe; color:#0369a1; padding:5px 12px; border-radius:20px; font-size:14px; font-weight:bold;">Жанр: {{ book.category.name }}</span>
+                <h3 style="margin:0 0 15px 0; color:#4b5563; font-weight:normal;">Автор: <strong>{{ book.author }}</strong></h3>
+                <span style="background:#e0f2fe; color:#0369a1; padding:5px 12px; border-radius:20px; font-size:14px; font-weight:bold; display:inline-block; margin-bottom:15px;">Жанр: {{ book.category.name }}</span>
 
-                <h4 style="margin:30px 0 10px 0; color:#111827;">Анотація / Опис:</h4>
-                <p style="color:#4b5563; line-height:1.6; font-size:16px;">{{ book.description|default:"Опис для цієї книги ще не додано." }}</p>
+                <div style="background:#fffbeb; border:1px solid #fef3c7; padding:15px; border-radius:8px; margin-bottom:20px;">
+                    <span style="font-size:18px; font-weight:bold; color:#d97706;">⭐ Рейтинг користувачів:</span>
+                    <span style="font-size:22px; font-weight:bold; color:#111827; margin-left:10px;">
+                        {% if average_rating %}{{ average_rating }} / 5.0{% else %}Ще немає оцінок{% endif %}
+                    </span>
+                </div>
+
+                <h4 style="margin:0 0 10px 0; color:#111827;">Анотація:</h4>
+                <p style="color:#4b5563; line-height:1.6; font-size:16px;">{{ book.description|default:"Опис відсутній." }}</p>
             </div>
 
-            <div style="margin-top:30px; max-width:300px;">
-                <button class="btn-buy" style="padding:15px; font-size:16px;" disabled>➕ Додати до трекера читання</button>
-                <p style="font-size:12px; color:#9ca3af; text-align:center; margin-top:5px;">Функціонал буде активний у наступних лабах</p>
+            <div style="margin-top:30px; max-width:350px;">
+                {% if in_tracker %}
+                    <button style="background-color:#6c757d; color:white; padding:15px; font-size:16px; border:none; border-radius:5px; width:100%; font-weight:bold;" disabled>✔️ Вже у вашому трекері</button>
+                {% else %}
+                    <a href="{% url 'add_to_tracker' book.id %}" style="background-color:#28a745; color:white; padding:15px; font-size:16px; text-decoration:none; border-radius:5px; display:block; text-align:center; font-weight:bold; box-shadow:0 4px 6px rgba(40,167,69,0.2);">➕ Додати до списку читання (Кошик)</a>
+                {% endif %}
             </div>
         </div>
     </div>
-    <br><br>
-    <a href="/" style="color:#0284c7; text-decoration:none; font-weight:bold;">⬅️ На головну сторінку</a>
+
+    <div style="margin-top:40px; background:white; padding:30px; border-radius:8px; border: 1px solid #e5e7eb;">
+        <h2>Залишити свій відгук та оцінку</h2>
+        {% if user.is_authenticated %}
+            <form method="POST" style="display:flex; flex-direction:column; gap:15px; max-width:600px;">
+                {% csrf_token %}
+                <div>
+                    <label style="font-weight:bold; display:block; margin-bottom:5px;">Ваша оцінка книги:</label>
+                    {{ review_form.rating }}
+                </div>
+                <div>
+                    <label style="font-weight:bold; display:block; margin-bottom:5px;">Текст відгуку:</label>
+                    {{ review_form.text }}
+                </div>
+                <button type="submit" name="review_submit" style="background:#0284c7; color:white; border:none; padding:12px 20px; border-radius:5px; font-weight:bold; cursor:pointer; align-self:flex-start;">Надіслати оцінку</button>
+            </form>
+        {% else %}
+            <p style="color:#ef4444; font-weight:bold;">Увійдіть через адмінку під своїм акаунтом суперюзера, щоб мати можливість ставити оцінки!</p>
+        {% endif %}
+
+        <hr style="margin:40px 0 20px 0; border:0; border-top:1px solid #e5e7eb;">
+
+        <h3>Всі відгуки користувачів ({{ reviews.count }})</h3>
+        <div style="display:flex; flex-direction:column; gap:15px;">
+            {% for r in reviews %}
+                <div style="background:#f9fafb; padding:15px; border-radius:8px; border:1px solid #f3f4f6;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                        <strong>👤 {{ r.user.username }}</strong>
+                        <span style="color:#d97706; font-weight:bold;">★ {{ r.rating }} / 5</span>
+                    </div>
+                    <p style="margin:0; color:#4b5563;">{{ r.text }}</p>
+                    <small style="color:#9ca3af; display:block; margin-top:5px;">{{ r.created_at|date:"d.m.Y H:i" }}</small>
+                </div>
+            {% empty %}
+                <p style="color:#9ca3af;">Цю книгу ще ніхто не оцінював. Будьте першим!</p>
+            {% endfor %}
+        </div>
+    </div>
 {% endblock %}

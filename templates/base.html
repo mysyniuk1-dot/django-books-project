@@ -12,7 +12,10 @@
         nav a:hover { color: #38bdf8; }
         .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; flex: 1; width: 100%; box-sizing: border-box; }
         footer { background-color: #111827; color: #9ca3af; padding: 30px 40px; margin-top: auto; }
-        .footer-content { display: flex; justify-content: space-between; max-width: 1200px; margin: 0 auto; }
+        .footer-content { display: flex; justify-content: space-between; max-width: 1200px; margin: 0 auto; flex-wrap: wrap; gap: 30px; }
+        .alert { padding: 12px; margin-bottom: 20px; border-radius: 5px; font-weight: bold; }
+        .alert-success { background-color: #d1e7dd; color: #0f5132; border: 1px solid #badbcc; }
+        .alert-error { background-color: #f8d7da; color: #842029; border: 1px solid #f5c2c7; }
     </style>
 </head>
 <body>
@@ -32,23 +35,42 @@
                 </li>
                 <li><a href="/about/">Про нас</a></li>
                 <li><a href="/contacts/">Контакти</a></li>
+                {% if user.is_authenticated %}
+                    <li><a href="/my-tracker/" style="background:#0284c7; padding:8px 15px; border-radius:5px; color:white;">🛒 Мій Трекер</a></li>
+                {% endif %}
             </ul>
         </nav>
     </header>
 
     <div class="container">
+        {% if messages %}
+            {% for msg in messages %}
+                <div class="alert alert-{{ msg.tags }}">{{ msg }}</div>
+            {% endfor %}
+        {% endif %}
+
         {% block content %}{% endblock %}
     </div>
 
     <footer>
         <div class="footer-content">
-            <div><h4>BookTracker</h4><p>Лабораторна робота №6</p></div>
-            <div><p><a href="/" style="color:#9ca3af;">На головну</a></p></div>
+            <div style="max-width: 400px;">
+                <h4 style="color:white; margin-top:0;">📚 BookTracker</h4>
+                <p>Лабораторна робота №7 — Робота з Django Forms, агрегацією даних та імітацією кошика покупця.</p>
+            </div>
+
+            <div>
+                <h4 style="color:white; margin-top:0;">Підписка на новини</h4>
+                <form method="POST" action="{% url 'index' %}" style="display:flex; gap:10px;">
+                    {% csrf_token %}
+                    {{ newsletter_form.email }}
+                    <button type="submit" name="newsletter_submit" style="background:#38bdf8; border:none; padding:10px 15px; border-radius:5px; cursor:pointer; font-weight:bold;">Підписатись</button>
+                </form>
+            </div>
         </div>
     </footer>
 
     <script>
-        // Скрипт для показу жанрів при наведенні
         const parent = document.querySelector('nav li:nth-child(2)');
         const dropdown = document.getElementById('dropdown');
         parent.addEventListener('mouseenter', () => dropdown.style.display = 'flex');
