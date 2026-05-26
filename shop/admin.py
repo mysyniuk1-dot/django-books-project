@@ -1,17 +1,15 @@
 from django.contrib import admin
-from shop.models import Book, Review, ReadingProgress  # Виправлений імпорт
+from shop.models import Book, Review, ReadingProgress, Category
+
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ('name',)
 
 @admin.register(Book)
 class BookAdmin(admin.ModelAdmin):
-    list_display = ('title', 'author', 'created_at', 'updated_at')
+    list_display = ('title', 'author', 'category', 'created_at')
+    list_filter = ('category',)
     search_fields = ('title', 'author')
 
-@admin.register(Review)
-class ReviewAdmin(admin.ModelAdmin):
-    list_display = ('book', 'user', 'rating', 'created_at', 'updated_at')
-    list_filter = ('rating', 'created_at')
-
-@admin.register(ReadingProgress)
-class ReadingProgressAdmin(admin.ModelAdmin):
-    list_display = ('user', 'book', 'status', 'created_at', 'updated_at')
-    list_filter = ('status',)
+admin.site.register(Review)
+admin.site.register(ReadingProgress)

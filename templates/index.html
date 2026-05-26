@@ -1,23 +1,22 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ title }}{% endblock %}
-
 {% block content %}
-    <h1 style="margin-bottom: 20px; color: #111827;">{{ heading }}</h1>
-    <p style="color: #6b7280; font-size: 16px; margin-bottom: 30px;">Нижче відображено елементи, завантажені безпосередньо з вашої бази даних SQLite за допомогою Django ORM.</p>
-
-    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px;">
+    <h1 style="color: #111827;">Всі книги нашої платформи</h1>
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; margin-top: 20px;">
         {% for book in books %}
-            <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid #e5e7eb;">
-                <h3 style="margin: 0 0 10px 0; color: #1f2937;">📖 {{ book.title }}</h3>
-                <h5 style="margin: 0 0 15px 0; color: #4b5563; font-weight: normal; font-style: italic;">Автор: {{ book.author }}</h5>
-                <p style="color: #4b5563; font-size: 14px; line-height: 1.5;">{{ book.description|default:"Опис відсутній." }}</p>
-                <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #f3f4f6; font-size: 12px; color: #9ca3af;">
-                    Додано: {{ book.created_at|date:"d.m.Y H:i" }}
+            <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e5e7eb; display:flex; flex-direction:column; justify-content:space-between;">
+                <div>
+                    {% if book.image %}
+                        <img src="{{ book.image.url }}" style="width:100%; height:250px; object-fit:cover; border-radius:5px; margin-bottom:15px;" alt="">
+                    {% else %}
+                        <div style="width:100%; height:250px; background:#e5e7eb; border-radius:5px; margin-bottom:15px; display:flex; align-items:center; justify-content:center; color:#9ca3af;">Немає обкладинки</div>
+                    {% endif %}
+                    <h3 style="margin: 0 0 5px 0;"><a href="/book/{{ book.id }}/" style="color:#111827; text-decoration:none;">{{ book.title }}</a></h3>
+                    <p style="margin:0 0 10px 0; color:#6b7280; font-style:italic;">Автор: {{ book.author }}</p>
+                    <span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:12px; font-size:12px;">{{ book.category.name }}</span>
                 </div>
+                <button class="btn-buy" disabled>Додати в читане (Недоступно)</button>
             </div>
-        {% empty %}
-            <p>У базі даних поки немає жодної книги. Додайте їх через адмінку!</p>
         {% endfor %}
     </div>
 {% endblock %}
