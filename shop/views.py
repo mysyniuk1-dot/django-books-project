@@ -1,86 +1,58 @@
-from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import AuthenticationForm
 from django.db.models import Avg
-from shop.models import Category, Book, Review, ReadingProgress
-from shop.forms import ReviewForm, NewsletterForm
+from django.shortcuts import render, get_object_or_404, redirect
+
+from shop.forms import ReviewForm, NewsletterForm, UserRegisterForm
+from shop.models import Category, Book, ReadingProgress
 
 
-# 1. Головна сторінка зі списком книг та формою підписки
 def index_view(request):
     books = Book.objects.all().order_by('-created_at')
     categories = Category.objects.all()
-
     if request.method == 'POST':
         newsletter_form = NewsletterForm(request.POST)
-        if newsletter_form.is_valid():  # <-- Виправлено синтаксис тут!
+        if newsletter_form.is_valid():
             newsletter_form.save()
             return redirect('index')
     else:
         newsletter_form = NewsletterForm()
-
-    return render(request, 'index.html', {
-        'books': books,
-        'categories': categories,
-        'newsletter_form': newsletter_form
-    })
+    return render(request, 'index.html', {'books': books, 'categories': categories, 'newsletter_form': newsletter_form})
 
 
-# 2. Сторінка "Про нас"
 def about_view(request):
-    categories = Category.objects.all()
-    newsletter_form = NewsletterForm()
-    return render(request, 'about.html', {
-        'categories': categories,
-        'newsletter_form': newsletter_form
-    })
+    return render(request, 'about.html', {'categories': Category.objects.all(), 'newsletter_form': NewsletterForm()})
 
 
-# 3. Сторінка "Контакти"
 def contacts_view(request):
-    categories = Category.objects.all()
-    newsletter_form = NewsletterForm()
-    return render(request, 'contacts.html', {
-        'categories': categories,
-        'newsletter_form': newsletter_form
-    })
+    return render(request, 'contacts.html', {'categories': Category.objects.all(), 'newsletter_form': NewsletterForm()})
 
 
-# 4. Сторінка книг конкретного жанру
 def category_view(request, category_id):
     category = get_object_or_404(Category, id=category_id)
-    books = category.books.all()
-    categories = Category.objects.all()
-    newsletter_form = NewsletterForm()
     return render(request, 'category.html', {
         'category': category,
-        'books': books,
-        'categories': categories,
-        'newsletter_form': newsletter_form
+        'books': category.books.all(),
+        'categories': Category.objects.all(),
+        'newsletter_form': NewsletterForm()
     })
 
 
-# 5. Детальна сторінка книги (з відгуками, формою оцінки та середнім балом)
 def book_detail_view(request, book_id):
     book = get_object_or_404(Book, id=book_id)
-    categories = Category.objects.all()
     book_reviews = book.reviews.all()
 
-    # Рахуємо середню оцінку
     avg_rating_data = book_reviews.aggregate(rating_avg=Avg('rating'))
-    average_rating = avg_rating_data['rating_avg']
-    if average_rating:
-        average_rating = round(average_rating, 1)
-    else:
-        average_rating = "Немає оцінок"
+    average_rating = round(avg_rating_data['rating_avg'], 1) if avg_rating_data['rating_avg'] else "Немає оцінок"
 
-    # Перевіряємо, чи книга вже додана в трекер поточного користувача
     user_progress = None
     if request.user.is_authenticated:
         user_progress = ReadingProgress.objects.filter(user=request.user, book=book).first()
 
     if request.method == 'POST':
         if not request.user.is_authenticated:
-            return redirect('admin:index')
+            return redirect('login')
         form = ReviewForm(request.POST)
         if form.is_valid():
             review = form.save(commit=False)
@@ -93,7 +65,7 @@ def book_detail_view(request, book_id):
 
     return render(request, 'book_detail.html', {
         'book': book,
-        'categories': categories,
+        'categories': Category.objects.all(),
         'reviews': book_reviews,
         'average_rating': average_rating,
         'form': form,
@@ -102,7 +74,7 @@ def book_detail_view(request, book_id):
     })
 
 
-# 6. Додавання/Оновлення книги в трекері читання (Кошик)
+# ДОДАВАННЯ ДО КОШИКА
 @login_required
 def add_to_tracker_view(request, book_id):
     book = get_object_or_404(Book, id=book_id)
@@ -116,18 +88,64 @@ def add_to_tracker_view(request, book_id):
         if not created:
             progress.status = status
             progress.save()
+    return redirect('user_tracker')
 
-    return redirect('book_detail', book_id=book.id)
 
-
-# 7. Сторінка перегляду особистого трекера
+# СТОРІНКА ПЕРЕГЛЯДУ КОШИКА
 @login_required
 def user_tracker_view(request):
     my_progress = ReadingProgress.objects.filter(user=request.user).select_related('book')
-    categories = Category.objects.all()
-
     return render(request, 'tracker_cart.html', {
         'my_progress': my_progress,
-        'categories': categories,
+        'categories': Category.objects.all(),
+        'newsletter_form': NewsletterForm()
+    })
+
+
+# ЛАБА 8: АВТЕНТИФІКАЦІЯ
+def register_view(request):
+    if request.user.is_authenticated:
+        return redirect('index')
+    if request.method == 'POST':
+        form = UserRegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('index')
+    else:
+        form = UserRegisterForm()
+    return render(request, 'registration/register.html',
+                  {'form': form, 'categories': Category.objects.all(), 'newsletter_form': NewsletterForm()})
+
+
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('index')
+    if request.method == 'POST':
+        form = AuthenticationForm(data=request.POST)
+        if form.is_valid():
+            login(request, form.get_user())
+            return redirect('profile')
+    else:
+        form = AuthenticationForm()
+    return render(request, 'registration/login.html',
+                  {'form': form, 'categories': Category.objects.all(), 'newsletter_form': NewsletterForm()})
+
+
+def logout_view(request):
+    logout(request)
+    return redirect('index')
+
+
+@login_required
+def profile_view(request):
+    if request.user.is_staff:
+        orders = ReadingProgress.objects.all().select_related('user', 'book')
+    else:
+        orders = ReadingProgress.objects.filter(user=request.user).select_related('book')
+
+    return render(request, 'registration/profile.html', {
+        'orders': orders,
+        'categories': Category.objects.all(),
         'newsletter_form': NewsletterForm()
     })

@@ -125,8 +125,14 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 # Додаємо ці рядки в кінець файлу:
+# Налаштування для збереження медіафайлів (обкладинок книг)
 import os
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Налаштування для тестування відправки Email (Лаба 8)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'webmaster@booktracker.local'
 
 

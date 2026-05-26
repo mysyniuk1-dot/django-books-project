@@ -2,79 +2,62 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}Книжковий Трекер{% endblock %}</title>
+    <title>Book Tracker</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f6f9; display: flex; flex-direction: column; min-height: 100vh; }
-        header { background-color: #1f2937; color: white; padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 22px; font-weight: bold; color: #38bdf8; text-decoration: none; }
-        nav ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 20px; align-items: center; }
-        nav a { color: #f3f4f6; text-decoration: none; font-size: 16px; font-weight: 500; }
-        nav a:hover { color: #38bdf8; }
-        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; flex: 1; width: 100%; box-sizing: border-box; }
-        footer { background-color: #111827; color: #9ca3af; padding: 30px 40px; margin-top: auto; }
-        .footer-content { display: flex; justify-content: space-between; max-width: 1200px; margin: 0 auto; flex-wrap: wrap; gap: 30px; }
-        .alert { padding: 12px; margin-bottom: 20px; border-radius: 5px; font-weight: bold; }
-        .alert-success { background-color: #d1e7dd; color: #0f5132; border: 1px solid #badbcc; }
-        .alert-error { background-color: #f8d7da; color: #842029; border: 1px solid #f5c2c7; }
+        body { font-family: sans-serif; margin: 0; padding: 0; background: #f9fafb; color: #1f2937; }
+        header { background: #1e293b; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; color: white; }
+        nav ul { list-style: none; display: flex; gap: 20px; margin: 0; padding: 0; align-items: center; }
+        nav a { color: #cbd5e1; text-decoration: none; font-weight: 500; }
+        nav a:hover { color: white; }
+        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; min-height: 60vh; }
+        footer { background: #111827; color: #9ca3af; padding: 30px; text-align: center; margin-top: 50px; }
     </style>
 </head>
 <body>
 
-    <header>
-        <a href="/" class="logo">📚 BookTracker</a>
-        <nav>
-            <ul>
-                <li><a href="/">Головна</a></li>
-                <li style="position:relative;">
-                    <span style="cursor:pointer; color:#f3f4f6;">Жанри ▼</span>
-                    <div style="position:absolute; background: white; border: 1px solid #ccc; padding: 10px; display:none; flex-direction:column; gap:8px; width:180px; z-index:100; border-radius:5px; margin-top:5px;" id="dropdown">
-                        {% for cat in categories %}
-                            <a href="/category/{{ cat.id }}/" style="color:#333; text-decoration:none; font-size:14px;">{{ cat.name }}</a>
-                        {% endfor %}
-                    </div>
-                </li>
-                <li><a href="/about/">Про нас</a></li>
-                <li><a href="/contacts/">Контакти</a></li>
-                {% if user.is_authenticated %}
-                    <li><a href="/my-tracker/" style="background:#0284c7; padding:8px 15px; border-radius:5px; color:white;">🛒 Мій Трекер</a></li>
-                {% endif %}
-            </ul>
-        </nav>
-    </header>
+<header>
+    <div style="font-size: 24px; font-weight: bold; color: white;">📚 BookTracker</div>
+    <nav>
+        <ul>
+            <li><a href="{% url 'index' %}">Головна</a></li>
+            <li style="position:relative;" onmouseenter="document.getElementById('drop').style.display='flex'" onmouseleave="document.getElementById('drop').style.display='none'">
+                <span style="cursor:pointer; color:#cbd5e1;">Жанри ▼</span>
+                <div id="drop" style="position:absolute; background: white; border: 1px solid #e5e7eb; padding: 10px; display:none; flex-direction:column; gap:8px; width:180px; z-index:100; border-radius:5px; margin-top:0;">
+                    {% for cat in categories %}
+                        <a href="{% url 'category' cat.id %}" style="color:#374151; font-size:14px;">{{ cat.name }}</a>
+                    {% endfor %}
+                </div>
+            </li>
 
-    <div class="container">
-        {% if messages %}
-            {% for msg in messages %}
-                <div class="alert alert-{{ msg.tags }}">{{ msg }}</div>
-            {% endfor %}
-        {% endif %}
+            {% if user.is_authenticated %}
+                <li><a href="{% url 'user_tracker' %}" style="color: #34d399; font-weight: bold;">🛒 Мій кошик</a></li>
+                <li><a href="{% url 'profile' %}" style="color: #38bdf8; font-weight: bold;">👤 Кабінет ({{ user.username }})</a></li>
+                <li><a href="{% url 'logout' %}" style="background:#dc3545; padding:6px 12px; border-radius:5px; color:white;">Вийти</a></li>
+            {% else %}
+                <li><a href="{% url 'login' %}">Увійти</a></li>
+                <li><a href="{% url 'register' %}" style="background:#28a745; padding:6px 12px; border-radius:5px; color:white;">Реєстрація</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+</header>
 
-        {% block content %}{% endblock %}
+<div class="container">
+    {% block content %}{% endblock %}
+</div>
+
+<footer>
+    <p>© 2026 Лабораторні роботи Django. Усі права захищено.</p>
+    <div style="max-width: 400px; margin: 15px auto;">
+        <form method="POST" action="{% url 'index' %}">
+            {% csrf_token %}
+            <p style="color: white; margin-bottom: 5px; font-size: 14px;">Підписка на новини розсилки:</p>
+            <div style="display: flex; gap: 5px;">
+                {{ newsletter_form.email }}
+                <button type="submit" style="background: #0284c7; color: white; border: none; padding: 0 15px; border-radius: 5px; cursor: pointer;">✓</button>
+            </div>
+        </form>
     </div>
+</footer>
 
-    <footer>
-        <div class="footer-content">
-            <div style="max-width: 400px;">
-                <h4 style="color:white; margin-top:0;">📚 BookTracker</h4>
-                <p>Лабораторна робота №7 — Робота з Django Forms, агрегацією даних та імітацією кошика покупця.</p>
-            </div>
-
-            <div>
-                <h4 style="color:white; margin-top:0;">Підписка на новини</h4>
-                <form method="POST" action="{% url 'index' %}" style="display:flex; gap:10px;">
-                    {% csrf_token %}
-                    {{ newsletter_form.email }}
-                    <button type="submit" name="newsletter_submit" style="background:#38bdf8; border:none; padding:10px 15px; border-radius:5px; cursor:pointer; font-weight:bold;">Підписатись</button>
-                </form>
-            </div>
-        </div>
-    </footer>
-
-    <script>
-        const parent = document.querySelector('nav li:nth-child(2)');
-        const dropdown = document.getElementById('dropdown');
-        parent.addEventListener('mouseenter', () => dropdown.style.display = 'flex');
-        parent.parentElement.addEventListener('mouseleave', () => dropdown.style.display = 'none');
-    </script>
 </body>
 </html>

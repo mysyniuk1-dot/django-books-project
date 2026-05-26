@@ -1,4 +1,7 @@
 from django import forms
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
+
 from shop.models import Review, NewsletterSubscriber
 
 
@@ -15,6 +18,24 @@ class ReviewForm(forms.ModelForm):
             'text': forms.Textarea(
                 attrs={'rows': 4, 'placeholder': 'Напишіть ваше враження про книгу...', 'style': 'padding: 10px; border-radius: 5px; width: 100%; border: 1px solid #ccc;'}
             )}
+
+
+class UserRegisterForm(UserCreationForm):
+    email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={
+        'style': 'padding: 10px; border-radius: 5px; width: 100%; border: 1px solid #ccc; box-sizing: border-box;'
+    }))
+
+    class Meta:
+        model = User
+        fields = ['username', 'email']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            if field != self.fields['email']:
+                field.widget.attrs.update({
+                                              'style': 'padding: 10px; border-radius: 5px; width: 100%; border: 1px solid #ccc; box-sizing: border-box;'})
+
 
 
 # Форма підписки на розсилку
