@@ -1,26 +1,27 @@
 from django.shortcuts import render
+from shop.models import Book  # Імпортуємо модель книг
+
 
 def index_view(request):
+    # Витягуємо всі книги, які ви додали через адмінку
+    books_from_db = Book.objects.all()
+
     context = {
-        'title': 'Головна сторінка книги',
-        'heading': 'Вітаємо на платформі книжкових відгуків!',
-        'welcome_text': 'Тут ви можете відстежувати свій прогрес читання та ділитися враженнями.'
+        'title': 'Головна — Список книг',
+        'heading': 'Каталог книг вашої бібліотеки',
+        'books': books_from_db  # Передаємо список книг у шаблон
     }
     return render(request, 'index.html', context)
 
+
 def about_view(request):
-    context = {
-        'title': 'Про нас',
-        'heading': 'Про наш проєкт',
-        'description': 'Цей сайт створено для того, щоб об’єднувати любителів читання та допомагати вести трекінг улюблених книг.'
-    }
-    return render(request, 'about.html', context)
+    return render(request, 'about.html', {'title': 'Про нас'})
+
 
 def contacts_view(request):
     context = {
         'title': 'Контакти',
-        'heading': 'Зворотній зв’язок',
-        'phone': '+380 99 123 45 67',
-        'email': 'support@booktrack.com'
+        'phone': '+380 (99) 123-45-67',
+        'email': 'support@booktracking.local'
     }
     return render(request, 'contacts.html', context)

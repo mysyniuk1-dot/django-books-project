@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Книжковий Трекер{% endblock %}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f6f9; color: #333; display: flex; flex-direction: column; min-height: 100vh; }
+        /* Хедер та Меню */
+        header { background-color: #1f2937; color: white; padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 22px; font-weight: bold; color: #38bdf8; text-decoration: none; }
+        nav ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 20px; }
+        nav a { color: #f3f4f6; text-decoration: none; font-size: 16px; font-weight: 500; transition: color 0.2s; }
+        nav a:hover { color: #38bdf8; }
+        /* Контент */
+        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; flex: 1; }
+        /* Футер */
+        footer { background-color: #111827; color: #9ca3af; padding: 30px 40px; margin-top: auto; border-top: 1px solid #374151; }
+        .footer-content { display: flex; justify-content: space-between; max-width: 1200px; margin: 0 auto; flex-wrap: wrap; gap: 20px; }
+        .footer-section { min-width: 200px; }
+        .footer-section h4 { color: white; margin-bottom: 10px; }
+        .footer-section p, .footer-section a { font-size: 14px; color: #9ca3af; text-decoration: none; }
+        .footer-section a:hover { color: white; }
+        .footer-bottom { text-align: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid #374151; font-size: 13px; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="/" class="logo">📚 BookTracker</a>
+        <nav>
+            <ul>
+                <li><a href="/">Головна</a></li>
+                <li><a href="/about/">Про нас</a></li>
+                <li><a href="/contacts/">Контакти</a></li>
+                <li><a href="/admin/" target="_blank" style="color: #fcd34d;">Адмінка</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>Про BookTracker</h4>
+                <p>Зручний сервіс для трекінгу прочитаних книг, створення відгуків та аналізу власного прогресу читання.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Корисні посилання</h4>
+                <p><a href="/">Головна сторінка</a></p>
+                <p><a href="/about/">Про проєкт</a></p>
+                <p><a href="/contacts/">Техпідтримка</a></p>
+            </div>
+            <div class="footer-section">
+                <h4>Ми в соцмережах</h4>
+                <p><a href="#">🌐 GitHub</a></p>
+                <p><a href="#">📱 Telegram</a></p>
+                <p><a href="#">📸 Instagram</a></p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2026 BookTracker Inc. Усі права захищено. Лабораторна робота №5.
+        </div>
+    </footer>
+
+</body>
+</html>

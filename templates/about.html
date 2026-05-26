@@ -1,14 +1,13 @@
-<!DOCTYPE html>
-<html lang="uk">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ title }}</title>
-</head>
-<body>
-    <h1>{{ heading }}</h1>
-    <p>{{ description }}</p>
+{% extends 'base.html' %}
 
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+    <h1>Про наш проєкт</h1>
+    <p style="font-size: 18px; line-height: 1.6; color: #4b5563;">
+        Цей веб-ресурс створено як навчальний проєкт з розробки на Django. 
+        Він дозволяє динамічно керувати книжковим каталогом, залишати відгуки та стежити за прогресом читання в реальному часі.
+    </p>
     <br>
-    <a href="/">⬅️ Повернутися на головну</a>
-</body>
-</html>
+    <a href="/" style="display: inline-block; padding: 10px 20px; background-color: #38bdf8; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">⬅️ Повернутися на головну</a>
+{% endblock %}

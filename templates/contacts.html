@@ -1,15 +1,13 @@
-<!DOCTYPE html>
-<html lang="uk">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ title }}</title>
-</head>
-<body>
-    <h1>{{ heading }}</h1>
-    <p>Телефон: {{ phone }}</p>
-    <p>Email: {{ email }}</p>
+{% extends 'base.html' %}
 
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+    <h1>Зворотній зв'язок</h1>
+    <div style="background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); max-width: 500px;">
+        <p style="font-size: 16px; margin-bottom: 10px;"><strong>📞 Телефон техпідтримки:</strong> {{ phone }}</p>
+        <p style="font-size: 16px; margin-bottom: 20px;"><strong>✉️ Електронна пошта:</strong> {{ email }}</p>
+    </div>
     <br>
-    <a href="/">⬅️ Повернутися на головну</a>
-</body>
-</html>
+    <a href="/" style="display: inline-block; padding: 10px 20px; background-color: #38bdf8; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">⬅️ Повернутися на головну</a>
+{% endblock %}
