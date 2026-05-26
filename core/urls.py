@@ -16,7 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from shop.views import index_view, about_view, contacts_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', index_view, name='index'),          # Головна сторінка (http://127.0.0.1:8000/)
+    path('about/', about_view, name='about'),    # Сторінка про нас (http://127.0.0.1:8000/about/)
+    path('contacts/', contacts_view, name='contacts'), # Контакти (http://127.0.0.1:8000/contacts/)
 ]
